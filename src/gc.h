@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdio.h>
 
 #define MAX_STACK_SIZE 256
 #define INITIAL_GC_THRESHOLD 256;
