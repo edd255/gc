@@ -3,7 +3,7 @@
 #include <stdio.h>
 
 #define MAX_STACK_SIZE 256
-#define INITIAL_GC_THRESHOLD 256;
+#define INITIAL_GC_THRESHOLD 8
 
 typedef enum {
     OBJ_INT,
@@ -12,9 +12,9 @@ typedef enum {
 
 typedef struct object_t object_t;
 struct object_t {
-    object_t* next;
     object_type type;
     bool marked;
+    object_t* next;
     union {
         int value;
         struct {
@@ -25,15 +25,15 @@ struct object_t {
 };
 
 typedef struct {
-    object_t* first;
     object_t* stack[MAX_STACK_SIZE];
     int stack_size;
+    object_t* first;
     int num_objects;
     int max_objects;
 } virtual_machine_t;
 
 virtual_machine_t* new_virtual_machine(void);
-void push(virtual_machine_t* virtual_machine, object_t* value);
+int push(virtual_machine_t* virtual_machine, object_t* value);
 object_t* pop(virtual_machine_t* virtual_machine);
 object_t* new_object(virtual_machine_t* virtual_machine, object_type type);
 void push_int(virtual_machine_t* virtual_machine, int value);

@@ -6,16 +6,19 @@ virtual_machine_t* new_virtual_machine(void)
                 (virtual_machine_t*) malloc(sizeof(virtual_machine_t));
         virtual_machine -> stack_size = 0;
         virtual_machine -> num_objects = 0;
+        virtual_machine -> first = NULL;
         virtual_machine -> max_objects = INITIAL_GC_THRESHOLD;
         return virtual_machine;
+
 }
 
-void push(virtual_machine_t* virtual_machine, object_t* value)
+int push(virtual_machine_t* virtual_machine, object_t* value)
 {
         if (virtual_machine -> stack_size >= MAX_STACK_SIZE) {
-                return;
+                return 0;
         }
-        virtual_machine -> stack[virtual_machine-> stack_size++] = value;
+        virtual_machine -> stack[virtual_machine -> stack_size++] = value;
+        return 1;
 }
 
 object_t* pop(virtual_machine_t* virtual_machine)
@@ -76,10 +79,11 @@ void sweep(virtual_machine_t* virtual_machine)
 {
         object_t** object = &virtual_machine -> first;
         while (*object != NULL) {
-                if (!((*object) -> marked)) {
+                if (!(*object) -> marked) {
                         object_t* unreached = *object;
                         *object = unreached -> next;
                         free(unreached);
+                        virtual_machine -> num_objects--;
                 } else {
                         (*object) -> marked = false;
                         object = &(*object) -> next;
@@ -93,6 +97,10 @@ void gc(virtual_machine_t* virtual_machine)
         mark_all(virtual_machine);
         sweep(virtual_machine);
         virtual_machine -> max_objects = 2 * num_objects;
+        virtual_machine -> max_objects = 
+                virtual_machine -> num_objects == 0 
+                ? INITIAL_GC_THRESHOLD
+                : virtual_machine -> num_objects * 2;
 }
 
 void free_vm(virtual_machine_t* virtual_machine)
