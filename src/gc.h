@@ -32,7 +32,7 @@ typedef struct {
     int max_objects;
 } virtual_machine_t;
 
-virtual_machine_t* new_virtual_machine();
+virtual_machine_t* new_virtual_machine(void);
 void push(virtual_machine_t* virtual_machine, object_t* value);
 object_t* pop(virtual_machine_t* virtual_machine);
 object_t* new_object(virtual_machine_t* virtual_machine, object_type type);
@@ -42,3 +42,5 @@ void mark_all(virtual_machine_t* virtual_machine);
 void mark(object_t* object);
 void sweep(virtual_machine_t* virtual_machine);
 void gc(virtual_machine_t* virtual_machine);
+void free_vm(virtual_machine_t* virtual_machine);
+void object_print(object_t* object);

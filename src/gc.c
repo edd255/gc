@@ -1,6 +1,6 @@
 #include "gc.h"
 
-virtual_machine_t* new_virtual_machine()
+virtual_machine_t* new_virtual_machine(void)
 {
         virtual_machine_t* virtual_machine = 
                 (virtual_machine_t*) malloc(sizeof(virtual_machine_t));
