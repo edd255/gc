@@ -1,3 +1,6 @@
+#ifndef GC_H
+#define GC_H
+
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -44,3 +47,5 @@ void sweep(virtual_machine_t* virtual_machine);
 void gc(virtual_machine_t* virtual_machine);
 void free_vm(virtual_machine_t* virtual_machine);
 void object_print(object_t* object);
+
+#endif
