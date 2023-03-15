@@ -58,36 +58,36 @@ MEMCHECK  := ${ERR} ${DBG} ${SAN}
 $(BIN)_release: $(patsubst src/%.c, build/%.opt.o, $(SRCS)) 
 	$(Q)$(MKDIR) $(BIN_DIR)
 	$(Q)echo -e "${BOLD}====> LD $@\n${NOBOLD}"
-	$(Q)$(CC) $(RELEASE) $+ -o $@ $(LDFLAGS)
+	$(CC) $(RELEASE) $+ -o $@ $(LDFLAGS)
 
 $(BUILD_DIR)/%.opt.o: src/%.c
 	$(Q)echo "====> CC $@"
 	$(Q)mkdir -p $(dir $@)
-	$(Q)$(CC) $(RELEASE) $(CFLAGS) -c $< -o $@
+	$(CC) $(RELEASE) $(CFLAGS) -c $< -o $@
 
 #---- DEBUGGING ----------------------------------------------------------------
 
 $(BIN)_debugging: $(patsubst src/%.c, build/%.dbg.o, $(SRCS)) 
 	$(Q)$(MKDIR) $(BIN_DIR)
 	$(Q)echo -e "${BOLD}====> LD $@\n${NOBOLD}"
-	$(Q)$(CC) $(DEBUGGING) $+ -o $@ $(LDFLAGS)
+	$(CC) $(DEBUGGING) $+ -o $@ $(LDFLAGS)
 
 $(BUILD_DIR)/%.dbg.o: src/%.c
 	$(Q)echo "====> CC $@"
 	$(Q)mkdir -p $(dir $@)
-	$(Q)$(CC) $(DEBUGGING) $(CFLAGS) -c $< -o $@
+	$(CC) $(DEBUGGING) $(CFLAGS) -c $< -o $@
 
 #---- MEMCHECK -----------------------------------------------------------------
 
 $(BIN)_sanitized: $(patsubst src/%.c, build/%.san.o, $(SRCS)) 
 	$(Q)$(MKDIR) $(BIN_DIR)
 	$(Q)echo -e "${BOLD}====> LD $@\n${NOBOLD}"
-	$(Q)$(CC) $(DEBUGGING) $+ -o $@ $(LDFLAGS)
+	$(CC) $(MEMCHECK) $+ -o $@ $(LDFLAGS)
 
 $(BUILD_DIR)/%.san.o: src/%.c
 	$(Q)echo "====> CC $@"
 	$(Q)mkdir -p $(dir $@)
-	$(Q)$(CC) $(DEBUGGING) $(CFLAGS) -c $< -o $@
+	$(CC) $(MEMCHECK) $(CFLAGS) -c $< -o $@
 
 #---- EPILOGUE -----------------------------------------------------------------
 
