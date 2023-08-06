@@ -1,17 +1,14 @@
 #ifndef GC_H
 #define GC_H
 
-#include <stdlib.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <stdlib.h>
 
-#define MAX_STACK_SIZE 256
+#define MAX_STACK_SIZE       256
 #define INITIAL_GC_THRESHOLD 8
 
-typedef enum {
-    OBJ_INT,
-    OBJ_PAIR
-} object_type;
+typedef enum { OBJ_INT, OBJ_PAIR } object_type;
 
 typedef struct object_t object_t;
 struct object_t {
