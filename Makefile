@@ -20,7 +20,8 @@ Q      ?= @
 
 #---- DIRECTORIES --------------------------------------------------------------
 
-SRC_DIRS  := src $(wildcard ./deps/*)
+SRC_DIR   := lib tests
+SRC_DIRS  := $(SRC_DIR) $(wildcard ./deps/*)
 BUILD_DIR := build
 BIN_DIR   := bin
 INC_DIRS  := $(shell find $(SRC_DIRS) -type d)
@@ -37,6 +38,7 @@ DEPS := $(OBJS:.o=.d)
 LDFLAGS   += -ledit
 CFLAGS    := $(INC_FLAGS) -MMD -MP
 INC_FLAGS := $(addprefix -I,$(INC_DIRS))
+MAKEFLAGS := --jobs=$(shell nproc)
 
 ERR := -Wall -Wpedantic -Wextra -Werror
 OPT := -Ofast -DNDEBUG
@@ -58,46 +60,59 @@ MEMCHECK  := ${ERR} ${DBG} ${SAN}
 
 $(BIN)_release: $(patsubst src/%.c, build/%.opt.o, $(SRCS)) 
 	$(Q)$(MKDIR) $(BIN_DIR)
-	$(Q)echo -e "${BOLD}====> LD $@\n${NOBOLD}"
-	$(CC) $(RELEASE) $+ -o $@ $(LDFLAGS)
+	$(Q)echo -e "${BOLD}====> LD $@${NOBOLD}"
+	$(Q)$(CC) $(RELEASE) $+ -o $@ $(LDFLAGS)
 
 $(BUILD_DIR)/%.opt.o: src/%.c
 	$(Q)echo "====> CC $@"
 	$(Q)mkdir -p $(dir $@)
-	$(CC) $(RELEASE) $(CFLAGS) -c $< -o $@
+	$(Q)$(CC) $(RELEASE) $(CFLAGS) -c $< -o $@
+
+release: $(BIN)_release
 
 #---- DEBUGGING ----------------------------------------------------------------
 
 $(BIN)_debugging: $(patsubst src/%.c, build/%.dbg.o, $(SRCS)) 
 	$(Q)$(MKDIR) $(BIN_DIR)
-	$(Q)echo -e "${BOLD}====> LD $@\n${NOBOLD}"
-	$(CC) $(DEBUGGING) $+ -o $@ $(LDFLAGS)
+	$(Q)echo -e "${BOLD}====> LD $@${NOBOLD}"
+	$(Q)$(CC) $(DEBUGGING) $+ -o $@ $(LDFLAGS)
 
 $(BUILD_DIR)/%.dbg.o: src/%.c
 	$(Q)echo "====> CC $@"
 	$(Q)mkdir -p $(dir $@)
-	$(CC) $(DEBUGGING) $(CFLAGS) -c $< -o $@
+	$(Q)$(CC) $(DEBUGGING) $(CFLAGS) -c $< -o $@
+
+debugging: $(BIN)_debugging
 
 #---- MEMCHECK -----------------------------------------------------------------
 
 $(BIN)_sanitized: $(patsubst src/%.c, build/%.san.o, $(SRCS)) 
 	$(Q)$(MKDIR) $(BIN_DIR)
-	$(Q)echo -e "${BOLD}====> LD $@\n${NOBOLD}"
-	$(CC) $(MEMCHECK) $+ -o $@ $(LDFLAGS)
+	$(Q)echo -e "${BOLD}====> LD $@${NOBOLD}"
+	$(Q)$(CC) $(MEMCHECK) $+ -o $@ $(LDFLAGS)
 
 $(BUILD_DIR)/%.san.o: src/%.c
 	$(Q)echo "====> CC $@"
 	$(Q)mkdir -p $(dir $@)
-	$(CC) $(MEMCHECK) $(CFLAGS) -c $< -o $@
+	$(Q)$(CC) $(MEMCHECK) $(CFLAGS) -c $< -o $@
 
-#---- EPILOGUE -----------------------------------------------------------------
+memcheck: $(BIN)_sanitized
 
-.PHONY: all clean
+#---- CLEANING -----------------------------------------------------------------
 
 clean:
 	$(Q)$(RM) --recursive $(BUILD_DIR)
 
-all: $(BIN)_release $(BIN)_debugging $(BIN)_sanitized
+#---- STYLE --------------------------------------------------------------------
+
+style:
+	$(Q)echo "====> Formatting..."
+	$(Q)find $(SRC_DIR) -iname *.h -o -iname *.c | xargs clang-format -i
+
+#==== EPILOGUE =================================================================
+
+all: style release debugging memcheck
 
 # Include the .d makefiles
 -include $(DEPS)
+.PHONY: all clean style
