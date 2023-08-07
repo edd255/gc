@@ -1,48 +1,25 @@
 #ifndef GC_H
 #define GC_H
 
-#include <stdbool.h>
+#include <assert.h>
+#include <stddef.h>
+#include <stdint.h>
 #include <stdio.h>
-#include <stdlib.h>
+#include <unistd.h>
 
-#define MAX_STACK_SIZE       256
-#define INITIAL_GC_THRESHOLD 8
+/* We allocate blocks in page-sized chunks */
+#define MIN_ALLOC_SIZE 4096
 
-typedef enum { OBJ_INT, OBJ_PAIR } object_type;
+#define UNTAG(p) (((uintptr_t)(p)) & 0xfffffffc)
 
-typedef struct object_t object_t;
-struct object_t {
-    object_type type;
-    bool marked;
-    object_t* next;
-    union {
-        int value;
-        struct {
-            object_t* head;
-            object_t* tail;
-        };
-    };
+typedef struct header_t header_t;
+struct header_t {
+    unsigned int size;
+    header_t* next;
 };
 
-typedef struct {
-    object_t* stack[MAX_STACK_SIZE];
-    int stack_size;
-    object_t* first;
-    int num_objects;
-    int max_objects;
-} virtual_machine_t;
-
-virtual_machine_t* new_virtual_machine(void);
-int push(virtual_machine_t* virtual_machine, object_t* value);
-object_t* pop(virtual_machine_t* virtual_machine);
-object_t* new_object(virtual_machine_t* virtual_machine, object_type type);
-void push_int(virtual_machine_t* virtual_machine, int value);
-object_t* push_pair(virtual_machine_t* virtual_machine);
-void mark_all(virtual_machine_t* virtual_machine);
-void mark(object_t* object);
-void sweep(virtual_machine_t* virtual_machine);
-void gc(virtual_machine_t* virtual_machine);
-void free_vm(virtual_machine_t* virtual_machine);
-void object_print(object_t* object);
+void* gc_malloc(size_t alloc_size);
+void gc_init(void);
+void gc_collect(void);
 
 #endif

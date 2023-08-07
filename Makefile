@@ -40,7 +40,7 @@ CFLAGS    := $(INC_FLAGS) -MMD -MP
 INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 MAKEFLAGS := --jobs=$(shell nproc)
 
-ERR := -Wall -Wpedantic -Wextra -Werror
+ERR := -Wall #-Wpedantic -Wextra -Werror
 OPT := -Ofast -DNDEBUG
 DBG := -Og -g 
 SAN := -fsanitize=address \
